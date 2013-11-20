@@ -1,3 +1,5 @@
+;; TODO use docview mode or gs to show pages graphically
+
 (add-hook 'dired-mode-hook
   (lambda ()
 	(local-unset-key (kbd "C-x p"))
@@ -14,7 +16,7 @@
   "Convert page `page-num' of `filename' to text and show the
 output in the current buffer"
   (interactive)
-  (if (< 1 page-num)
+  (if (< page-num 1)
 	  (user-error (format "Page number is not valid: %d" page-num)))
   (let ((first-args (split-string (format "-q -dNODISPLAY -P- -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -dFirstPage=%d -dLastPage=%d -c save -f ps2ascii.ps" page-num page-num)))
 		(rest-args `(,filename "-c" "quit")))
@@ -29,6 +31,8 @@ output in the current buffer"
 	  (delete-window))
 	(kill-buffer pdf-renaming-buffer)))
 
+;; This next/prev page stuff might not be the best option
+;; or.. it might be
 (defun pdf-next-page ()
   "Go to the next page in the current PDF-renaming buffer"
   (interactive)
@@ -47,8 +51,8 @@ output in the current buffer"
   (let ((content-buf (generate-new-buffer "*pdf-renaming*"))
 		(dired-buf (if (eq 'dired-mode major-mode) (current-buffer))))
 	(with-current-buffer content-buf
-	  (pdf-to-text filename 1)
 	  (pdf-renaming-mode)
+	  (pdf-to-text filename 1)
 	  (set (make-local-variable 'pdf-rename-filename) filename)
 	  (set (make-local-variable 'pdf-dired-buffer) dired-buf)
 	(switch-to-buffer-other-window content-buf))))
@@ -60,9 +64,9 @@ output in the current buffer"
 		(old-filename pdf-rename-filename))
 	(if pdf-dired-buffer
 		(with-current-buffer pdf-dired-buffer
-		  (dired-rename-file old-filename new-filename nil)))
-	  (rename-file old-filename new-filename nil)
-	  (pdf-rename-kill)))
+		  (dired-rename-file old-filename new-filename nil))
+	  (rename-file old-filename new-filename nil))
+  (pdf-rename-kill)))
 
 ;; (defun kill-buffer-not-region ()
 ;;   ""

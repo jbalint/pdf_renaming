@@ -9,6 +9,8 @@ PDF Renaming - A utility to assist in renaming sets of PDF files.
 	+ Can provide poor results
   + GhostScript
 * How it works
-** PDF to text is provided by GhostScript. The command is invoked as:
+  + PDF to text is provided by GhostScript. The command is invoked as:
    =gs -q -dNODISPLAY -P- -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -dFirstPage=1 -dLastPage=1 -c save -f ps2ascii.ps connector-semantics.pdf -c quit=
-   + This was obtained by looking at =ps2ascii= and adding the page restrictions.
+    + This was obtained by looking at =ps2ascii= and adding the page restrictions.
+  + Text is shown in a buffer where it can be edited into a filename,
+    presumably using the title text
