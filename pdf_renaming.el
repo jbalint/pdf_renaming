@@ -14,6 +14,8 @@
   "Convert page `page-num' of `filename' to text and show the
 output in the current buffer"
   (interactive)
+  (if (< 1 page-num)
+	  (user-error (format "Page number is not valid: %d" page-num)))
   (let ((first-args (split-string (format "-q -dNODISPLAY -P- -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -dFirstPage=%d -dLastPage=%d -c save -f ps2ascii.ps" page-num page-num)))
 		(rest-args `(,filename "-c" "quit")))
 	(set (make-local-variable 'pdf-page-num) page-num)
@@ -27,18 +29,20 @@ output in the current buffer"
 	  (delete-window))
 	(kill-buffer pdf-renaming-buffer)))
 
-(defun pdf-rename-next-page ()
-  ""
+(defun pdf-next-page ()
+  "Go to the next page in the current PDF-renaming buffer"
   (interactive)
-  )
+  (erase-buffer)
+  (pdf-to-text pdf-rename-filename (+ 1 pdf-page-num)))
 
-(defun pdf-rename-prev-page ()
-  ""
+(defun pdf-prev-page ()
+  "Go to the previous page in the current PDF-renaming buffer"
   (interactive)
-  )
+  (erase-buffer)
+  (pdf-to-text pdf-rename-filename (- pdf-page-num 1)))
 
 (defun pdf-rename-file (filename)
-  ""
+  "Main function to initiate renaming of `filename'"
   (interactive)
   (let ((content-buf (generate-new-buffer "*pdf-renaming*"))
 		(dired-buf (if (eq 'dired-mode major-mode) (current-buffer))))
@@ -50,7 +54,7 @@ output in the current buffer"
 	(switch-to-buffer-other-window content-buf))))
 
 (defun pdf-do-rename-with-buffer-contents ()
-  ""
+  "Perform the actual renaming"
   (interactive)
   (let ((new-filename (if (use-region-p) (buffer-substring (mark) (point)) (buffer-string)))
 		(old-filename pdf-rename-filename))
@@ -70,15 +74,12 @@ output in the current buffer"
 (defvar pdf-renaming-mode-map
   (let ((map (make-keymap)))
 
-	;; TODO rename with buffer contents
+	(define-key map (kbd "C-c C-k") 'pdf-rename-kill)
 
-	(define-key map (kbd "C-c C-k") 'pdf-rename-cancel)
+	(define-key map (kbd "C-c C-c") 'pdf-do-rename-with-buffer-contents)
 
-	;; TODO next page
-
-	;; TODO previous page
-
-    (define-key map "\C-j" (lambda () (interactive) (message "This is PDF renaming mode!")))
+	(define-key map (kbd "C-c C-n") 'pdf-next-page)
+	(define-key map (kbd "C-c C-p") 'pdf-prev-page)
 
     map)
   "Keymap for PDF renaming major mode")
