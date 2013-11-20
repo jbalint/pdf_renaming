@@ -1,3 +1,14 @@
-PDF Renaming
+PDF Renaming - A utility to assist in renaming sets of PDF files.
 
-* 
+* What it does
+  PDF renaming assists in renaming PDF files based on content.
+  A subset of the content of the file is shown in a way that can be edited
+  to give the new title for the PDF file.
+* Requirements
+  + =pdftotext= provided by poppler (PDF rendering library based on xpdf 3.0)
+	+ Can provide poor results
+  + GhostScript
+* How it works
+** PDF to text is provided by GhostScript. The command is invoked as:
+   =gs -q -dNODISPLAY -P- -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -dFirstPage=1 -dLastPage=1 -c save -f ps2ascii.ps connector-semantics.pdf -c quit=
+   + This was obtained by looking at =ps2ascii= and adding the page restrictions.
