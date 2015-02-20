@@ -68,6 +68,12 @@ output in the current buffer"
 	  (rename-file old-filename new-filename nil))
   (pdf-rename-kill)))
 
+(defun pdf-open-external ()
+  "Open the PDF file externally for viewing"
+  (interactive)
+  (start-process "pdf" "pdf" "/home/jbalint/sw/FoxitReader-1.1-release/FoxitReader" pdf-rename-filename))
+  ;; (call-process "setsid" nil nil nil "FoxitReader" pdf-rename-filename))
+
 ;; (defun kill-buffer-not-region ()
 ;;   ""
 ;;   (interactive)
@@ -84,6 +90,8 @@ output in the current buffer"
 
 	(define-key map (kbd "C-c C-n") 'pdf-next-page)
 	(define-key map (kbd "C-c C-p") 'pdf-prev-page)
+
+	(define-key map (kbd "C-c C-o") 'pdf-open-external)
 
     map)
   "Keymap for PDF renaming major mode")
