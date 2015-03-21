@@ -71,7 +71,7 @@ output in the current buffer"
 (defun pdf-open-external ()
   "Open the PDF file externally for viewing"
   (interactive)
-  (start-process "pdf" "pdf" "/home/jbalint/sw/FoxitReader-1.1-release/FoxitReader" pdf-rename-filename))
+  (start-process "pdf" "pdf" (executable-find "foxitreader") pdf-rename-filename))
   ;; (call-process "setsid" nil nil nil "FoxitReader" pdf-rename-filename))
 
 ;; (defun kill-buffer-not-region ()
