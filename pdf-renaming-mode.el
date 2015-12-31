@@ -3,7 +3,9 @@
 (add-hook 'dired-mode-hook
   (lambda ()
 	(local-unset-key (kbd "C-x p"))
-    (define-key dired-mode-map (kbd "C-x p") 'dired-pdf-rename-files)))
+    (define-key dired-mode-map (kbd "C-x p") 'dired-pdf-rename-files)
+	(local-unset-key (kbd "C-o"))
+    (define-key dired-mode-map (kbd "C-o") 'dired-pdf-open-external)))
 
 ;; TODO needs to be extended to have an external list of files
 ;; and go to the next one when the rename is killed
@@ -11,6 +13,11 @@
   "Dired-mode utility to handle renaming current or list of marked files"
   (interactive)
   (mapc 'pdf-rename-file (dired-get-marked-files)))
+
+(defun dired-pdf-open-external ()
+  "Dired-mode utility to open documents externally"
+  (interactive)
+  (pdf--open-external (dired-get-file-for-visit)))
 
 (defun pdf-to-text (filename page-num)
   "Convert page `page-num' of `filename' to text and show the
@@ -68,11 +75,17 @@ output in the current buffer"
 	  (rename-file old-filename new-filename nil))
   (pdf-rename-kill)))
 
+(defun pdf--open-external (filename)
+  "Internal version to open document externally"
+  (pcase (substring filename -4 nil)
+	(".pdf" (start-process "pdf" "pdf" (executable-find "foxitreader") filename))
+	("djvu" (start-process "pdf" "pdf" (executable-find "djview") filename))
+	(t (error (concat "No program to open " filename)))))
+
 (defun pdf-open-external ()
   "Open the PDF file externally for viewing"
   (interactive)
-  (start-process "pdf" "pdf" (executable-find "foxitreader") pdf-rename-filename))
-  ;; (call-process "setsid" nil nil nil "FoxitReader" pdf-rename-filename))
+  (pdf--open-external pdf-rename-filename))
 
 ;; (defun kill-buffer-not-region ()
 ;;   ""
