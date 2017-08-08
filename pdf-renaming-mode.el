@@ -1,5 +1,7 @@
 ;; TODO use docview mode or gs to show pages graphically
 
+(require 'subr-x)
+
 (add-hook 'dired-mode-hook
   (lambda ()
 	(local-unset-key (kbd "C-x p"))
@@ -64,16 +66,31 @@ output in the current buffer"
 	  (set (make-local-variable 'pdf-dired-buffer) dired-buf)
 	(switch-to-buffer-other-window content-buf))))
 
-(defun pdf-do-rename-with-buffer-contents ()
-  "Perform the actual renaming"
-  (interactive)
-  (let ((new-filename (if (use-region-p) (buffer-substring (mark) (point)) (buffer-string)))
-		(old-filename pdf-rename-filename))
+(defun pdf--do-rename (new-filename)
+  "Rename the file and kill the buffer"
+  (let ((old-filename pdf-rename-filename))
 	(if pdf-dired-buffer
 		(with-current-buffer pdf-dired-buffer
 		  (dired-rename-file old-filename new-filename nil))
 	  (rename-file old-filename new-filename nil))
-  (pdf-rename-kill)))
+    (pdf-rename-kill)
+    (message (concat "Renamed to: " new-filename))))
+
+(defun pdf-do-rename-with-buffer-contents ()
+  "Perform the renaming using the buffer contents"
+  (interactive)
+  (let ((new-filename (if (use-region-p)
+                          (buffer-substring (mark) (point))
+                        (buffer-string))))
+    (pdf--do-rename new-filename)))
+
+(defun pdf-do-rename-with-current-line ()
+  "Perform the renaming using the current line with PDF appended"
+  (interactive)
+  (let* ((cur-line (buffer-substring (point-at-bol) (point-at-eol)))
+         (candidate1 (string-trim (replace-regexp-in-string ":" " -" cur-line)))
+         (new-filename (concat candidate1 ".pdf")))
+    (pdf--do-rename new-filename)))
 
 (defun pdf--open-external (filename)
   "Internal version to open document externally"
