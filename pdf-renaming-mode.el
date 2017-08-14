@@ -95,7 +95,7 @@ output in the current buffer"
 (defun pdf--open-external (filename)
   "Internal version to open document externally"
   (pcase (substring filename -4 nil)
-	(".pdf" (start-process "pdf" "pdf" (executable-find "foxitreader") filename))
+	(".pdf" (start-process "pdf" "pdf" (executable-find "chromium") "--new-window" filename))
 	("djvu" (start-process "pdf" "pdf" (executable-find "djview") filename))
 	(t (error (concat "No program to open " filename)))))
 
