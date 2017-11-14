@@ -27,10 +27,16 @@ output in the current buffer"
   (interactive)
   (if (< page-num 1)
 	  (user-error (format "Page number is not valid: %d" page-num)))
-  (let ((first-args (split-string (format "-q -dNODISPLAY -P- -dSAFER -dDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -dFirstPage=%d -dLastPage=%d -c save -f ps2ascii.ps" page-num page-num)))
-		(rest-args `(,filename "-c" "quit")))
+  ;; Ghostscript versions
+  ;; (let ((first-args (split-string (format "-q -dNODISPLAY -P- -dSAFER -dDELAYBIND -dREALLYDELAYBIND -dWRITESYSTEMDICT -dSIMPLE -dFirstPage=%d -dLastPage=%d -c save -f ps2ascii.ps" page-num page-num)))
+  ;;   	(rest-args `(,filename "-c" "quit")))
+  ;; (let ((first-args (split-string (format "-q -dBATCH -dNOPAUSE -dSIMPLE -sDEVICE=txtwrite -dFirstPage=%d -dLastPage=%d -sOutputFile=-" page-num page-num)))
+  ;;   	(rest-args (list filename)))
+  ;; https://stackoverflow.com/a/6189489/1090617
+  (let ((first-args (split-string (format "-f %d -l %d -layout -nopgbrk" page-num page-num)))
+    	(rest-args (list filename "-")))
 	(set (make-local-variable 'pdf-page-num) page-num)
-	(apply 'call-process "gs" nil t nil (append first-args rest-args))))
+	(apply 'call-process "pdftotext" nil t nil (append first-args rest-args))))
 
 (defun pdf-rename-kill ()
   "Kill the current PDF-renaming buffer"
