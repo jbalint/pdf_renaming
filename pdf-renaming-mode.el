@@ -36,7 +36,8 @@ output in the current buffer"
   (let ((first-args (split-string (format "-f %d -l %d -layout -nopgbrk" page-num page-num)))
     	(rest-args (list filename "-")))
 	(set (make-local-variable 'pdf-page-num) page-num)
-	(apply 'call-process "pdftotext" nil t nil (append first-args rest-args))))
+	(apply 'call-process "pdftotext" nil t nil (append first-args rest-args))
+    (beginning-of-buffer)))
 
 (defun pdf-rename-kill ()
   "Kill the current PDF-renaming buffer"
@@ -94,16 +95,18 @@ output in the current buffer"
   "Perform the renaming using the current line with PDF appended"
   (interactive)
   (let* ((cur-line (buffer-substring (point-at-bol) (point-at-eol)))
-         (candidate1 (string-trim (replace-regexp-in-string ":" " -" cur-line)))
-         (new-filename (concat candidate1 ".pdf")))
+         (candidate1 (replace-regexp-in-string ":" " -" cur-line))
+         (candidate2 (replace-regexp-in-string "\s+" " " candidate1))
+         (new-filename (concat (string-trim candidate2) ".pdf")))
     (pdf--do-rename new-filename)))
 
 (defun pdf--open-external (filename)
   "Internal version to open document externally"
   (pcase (substring filename -4 nil)
+	(".PDF" (start-process "pdf" "pdf" (executable-find "chromium") "--new-window" filename))
 	(".pdf" (start-process "pdf" "pdf" (executable-find "chromium") "--new-window" filename))
 	("djvu" (start-process "pdf" "pdf" (executable-find "djview") filename))
-	(t (error (concat "No program to open " filename)))))
+	(_ (error (concat "No program to open " filename)))))
 
 (defun pdf-open-external ()
   "Open the PDF file externally for viewing"
@@ -123,6 +126,7 @@ output in the current buffer"
 	(define-key map (kbd "C-c C-k") 'pdf-rename-kill)
 
 	(define-key map (kbd "C-c C-c") 'pdf-do-rename-with-buffer-contents)
+    (define-key map (kbd "C-c C-l") 'pdf-do-rename-with-current-line)
 
 	(define-key map (kbd "C-c C-n") 'pdf-next-page)
 	(define-key map (kbd "C-c C-p") 'pdf-prev-page)
