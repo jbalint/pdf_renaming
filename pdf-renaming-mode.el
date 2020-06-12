@@ -6,8 +6,9 @@
   (lambda ()
 	(local-unset-key (kbd "C-x p"))
     (define-key dired-mode-map (kbd "C-x p") 'dired-pdf-rename-files)
-	(local-unset-key (kbd "C-o"))
-    (define-key dired-mode-map (kbd "C-o") 'dired-pdf-open-external)))
+	;;(local-unset-key (kbd "C-o"))
+        ;;(define-key dired-mode-map (kbd "C-o") 'dired-pdf-open-external)
+        ))
 
 ;; TODO needs to be extended to have an external list of files
 ;; and go to the next one when the rename is killed
